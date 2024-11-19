@@ -8,6 +8,7 @@
     ElSelect,
     ElOption,
   } from 'element-plus';
+  import laborInsuranceRanges from '@/data/insurance-ranges'; // 確保路徑正確
 
   export default {
     components: {
@@ -47,6 +48,7 @@
       }
 
       onMounted(async () => {
+        // alert(JSON.stringify(laborInsuranceRanges))
         const [tableList, selection] = await Promise.all([bitable.base.getTableMetaList(), bitable.base.getSelection()]);
         formData.value.table = selection.tableId;
         tableMetaList.value = tableList;
