@@ -18,7 +18,7 @@
       ElOption,
     },
     setup() {
-      const formData = ref({ table: '', field: '' });
+      const formData = ref({ table: '', field: '', calc: '' });
       const tableMetaList = ref([]);
       const fieldsMetaList = ref([]);
 
@@ -26,15 +26,33 @@
         const tableId = formData.value.table;
         if (tableId) {
           const table = await bitable.base.getTableById(tableId);
-          fieldsMetaList.value = await table.getFieldMetaList();
+          const fields = await table.getFieldMetaList();
+          fieldsMetaList.value  = fields.filter((meta) => meta.type == 2);
         }
       };
+
+      const calc_salary = async () => {
+        const tableId = formData.value.table;
+        if (tableId) {
+          const table = await bitable.base.getTableById(tableId);
+          const salaryField = formData.value.field;
+          const calcId = formData.value.calc;
+          const recordIdList = await table.getRecordIdList();
+
+          recordIdList.forEach(async (recordId) => {
+            let salaryValue = await table.getCellValue(salaryField,recordId);
+            table.setCellValue(calcId,recordId, salaryValue + 2000);
+          })
+        }
+      }
 
       onMounted(async () => {
         const [tableList, selection] = await Promise.all([bitable.base.getTableMetaList(), bitable.base.getSelection()]);
         formData.value.table = selection.tableId;
         tableMetaList.value = tableList;
-        fieldsMetaList.value = await (await bitable.base.getTableById(selection.tableId)).getFieldMetaList();
+        const table = await bitable.base.getTableById(selection.tableId);
+        const fields = await table.getFieldMetaList();
+        fieldsMetaList.value  = fields.filter((meta) => meta.type == 2);
       });
 
       return {
@@ -42,6 +60,7 @@
         tableMetaList,
         fieldsMetaList,
         updateFields,
+        calc_salary
       };
     },
   };
@@ -103,7 +122,18 @@
           />
         </el-select>
     </el-form-item>
-    <!-- <el-button type="primary" plain size="large" @click="addRecord">新增一行记录</el-button> -->
+
+    <el-form-item label="計算欄位" size="large" v-show="formData.table">
+        <el-select v-model="formData.calc" placeholder="請選擇要放的欄位" style="width: 100%">
+          <el-option
+            v-for="meta in fieldsMetaList"
+            :key="meta.id"
+            :label="meta.name"
+            :value="meta.id"
+          />
+        </el-select>
+    </el-form-item>
+    <el-button type="primary" plain size="large" @click="calc_salary">新增一行记录</el-button>
   </el-form>
 </template>
 
