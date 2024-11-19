@@ -18,14 +18,15 @@
       ElOption,
     },
     setup() {
-      const formData = ref({ table: '' });
+      const formData = ref({ table: '', field: '' });
       const tableMetaList = ref([]);
+      const fieldsMetaList = ref([]);
 
-      const addRecord = async () => {
+      const updateFields = async () => {
         const tableId = formData.value.table;
         if (tableId) {
           const table = await bitable.base.getTableById(tableId);
-          table.addRecord({ fields: {} });
+          fieldsMetaList.value = await table.getFieldMetaList();
         }
       };
 
@@ -33,12 +34,14 @@
         const [tableList, selection] = await Promise.all([bitable.base.getTableMetaList(), bitable.base.getSelection()]);
         formData.value.table = selection.tableId;
         tableMetaList.value = tableList;
+        fieldsMetaList.value = await (await bitable.base.getTableById(selection.tableId)).getFieldMetaList();
       });
 
       return {
         formData,
         tableMetaList,
-        addRecord,
+        fieldsMetaList,
+        updateFields,
       };
     },
   };
@@ -81,7 +84,7 @@
       </a>
     </el-form-item>
     <el-form-item label="选择数据表" size="large">
-        <el-select v-model="formData.table" placeholder="请选择数据表" style="width: 100%">
+        <el-select v-model="formData.table" placeholder="请选择数据表" style="width: 100%" @change="updateFields">
           <el-option
             v-for="meta in tableMetaList"
             :key="meta.id"
@@ -90,7 +93,17 @@
           />
         </el-select>
     </el-form-item>
-    <el-button type="primary" plain size="large" @click="addRecord">新增一行记录</el-button>
+    <el-form-item label="底薪欄位" size="large" v-show="formData.table">
+        <el-select v-model="formData.field" placeholder="請選擇底薪欄位" style="width: 100%">
+          <el-option
+            v-for="meta in fieldsMetaList"
+            :key="meta.id"
+            :label="meta.name"
+            :value="meta.id"
+          />
+        </el-select>
+    </el-form-item>
+    <!-- <el-button type="primary" plain size="large" @click="addRecord">新增一行记录</el-button> -->
   </el-form>
 </template>
 
