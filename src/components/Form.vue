@@ -91,24 +91,25 @@
               if (salaryValue > range.min && salaryValue <= range.max) {
                 return range;
               }
-              // 最後如果突破天際
-              if (salaryValue > range.min && salaryValue > range.max) {
-                return range;
-              }
             })
 
-            if (ranges.length == 0) {
-              table.setCellValue(calcId,recordId, 0);
-            } else {
-              // 定義映射表
-              const mapping = [
-                { key: 'healthPersonal', rangeKey: 'healthPersonal' },
-                { key: 'healthCompany', rangeKey: 'healthCompany' },
-                { key: 'laborPersonal', rangeKey: 'laborPersonal' },
-                { key: 'laborCompany', rangeKey: 'laborCompany' },
-                { key: 'laborPension', rangeKey: 'laborPension' }
-              ];
+            // 定義映射表
+            const mapping = [
+              { key: 'healthPersonal', rangeKey: 'healthPersonal' },
+              { key: 'healthCompany', rangeKey: 'healthCompany' },
+              { key: 'laborPersonal', rangeKey: 'laborPersonal' },
+              { key: 'laborCompany', rangeKey: 'laborCompany' },
+              { key: 'laborPension', rangeKey: 'laborPension' }
+            ];
 
+            if (ranges.length == 0) {
+              // 表示是突破天際的情況
+              mapping.forEach(({ key, rangeKey }) => {
+                if (formData.value[key]) {
+                  table.setCellValue(formData.value[key], recordId, laborInsuranceRanges[laborInsuranceRanges.length - 1][rangeKey]);
+                }
+              });
+            } else {
               // 迴圈處理每個項目
               mapping.forEach(({ key, rangeKey }) => {
                 if (formData.value[key]) {

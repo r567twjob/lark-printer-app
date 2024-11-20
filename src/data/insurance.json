@@ -646,14 +646,5 @@
         "laborPersonal": 1100,
         "laborCompany": 3848,
         "laborPension": 9000
-    },
-    {
-        "min": 219500,
-        "max": 219500,
-        "healthPersonal": 3404,
-        "healthCompany": 10622,
-        "laborPersonal": 1100,
-        "laborCompany": 3848,
-        "laborPension": 9000
     }
 ]
