@@ -7,8 +7,10 @@
     ElFormItem,
     ElSelect,
     ElOption,
+    ElMessage
   } from 'element-plus';
   import laborInsuranceRanges from '@/data/insurance.json'; // 確保路徑正確
+  import 'element-plus/dist/index.css';
 
   export default {
     components: {
@@ -17,6 +19,7 @@
       ElFormItem,
       ElSelect,
       ElOption,
+      ElMessage
     },
     setup() {
       const fieldsConfig = ref([
@@ -24,7 +27,7 @@
         { label: "計算健保費公司負擔", model: "healthCompany" },
         { label: "計算勞保費個人負擔", model: "laborPersonal" },
         { label: "計算勞保費公司負擔", model: "laborCompany" },
-        { label: "計算勞工退休", model: "laborPension" },
+        { label: "計算勞工退休金", model: "laborPension" },
       ]);
 
       const formData = ref({
@@ -50,7 +53,9 @@
         }
         // 如果有薪資欄位已設定則處理被計算欄位的列表
         if (formData.value.salary) {
-          fieldsCalcMetaList.value = fieldsMetaList.value.filter((meta) => meta.id != formData.value.salary);
+          fieldsCalcMetaList.value = fieldsMetaList.value
+            .filter((meta) => meta.id != formData.value.salary)
+            .sort((a, b) => a.name.localeCompare(b.name));
         }
       };
 
@@ -60,6 +65,24 @@
           const table = await bitable.base.getTableById(tableId);
           const salaryField = formData.value.salary;
           const recordIdList = await table.getRecordIdList();
+
+          if (salaryField == '') {
+            ElMessage({
+              showClose: true,
+              message: '請先選擇薪資欄位',
+              type: 'error',
+            })
+            return;
+          }
+
+          if (recordIdList.length == 0) {
+            ElMessage({
+              showClose: true,
+              message: '請先確認資料表裡有紀錄可計算',
+              type: 'error',
+            })
+            return;
+          }
 
           recordIdList.forEach(async (recordId) => {
             let salaryValue = await table.getCellValue(salaryField,recordId);
@@ -101,7 +124,7 @@
         const table = await bitable.base.getTableById(selection.tableId);
         const fields = await table.getFieldMetaList();
         // 一開始先設定薪資欄位的列表, 只有數字型態的欄位可以被設定
-        fieldsMetaList.value  = fields.filter((meta) => meta.type == 2);
+        fieldsMetaList.value  = fields.filter((meta) => meta.type == 2).sort((a, b) => a.name.localeCompare(b.name));;
       });
 
       return {
@@ -132,11 +155,12 @@
 
     <el-form-item v-for="field in fieldsConfig" :key="field.model" :label="field.label" size="large" v-show="formData.table">
         <el-select v-model="formData[field.model]" placeholder="請選擇要放的欄位">
-          <el-option v-for="meta in fieldsMetaList" :key="meta.id" :label="meta.name" :value="meta.id"/>
+          <el-option v-for="meta in fieldsCalcMetaList" :key="meta.id" :label="meta.name" :value="meta.id"/>
         </el-select>
     </el-form-item>
 
     <el-button type="primary" plain size="large" @click="calc_salary">開始計算</el-button>
+    
   </el-form>
 </template>
 
