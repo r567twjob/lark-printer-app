@@ -91,6 +91,10 @@
               if (salaryValue > range.min && salaryValue <= range.max) {
                 return range;
               }
+              // 最後如果突破天際
+              if (salaryValue > range.min && salaryValue > range.max) {
+                return range;
+              }
             })
 
             if (ranges.length == 0) {
