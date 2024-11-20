@@ -104,6 +104,8 @@
 
             if (ranges.length == 0) {
               // 表示是突破天際的情況
+              // console.log('這裡是突破天際的情況')
+              // console.log(laborInsuranceRanges[laborInsuranceRanges.length - 1])
               mapping.forEach(({ key, rangeKey }) => {
                 if (formData.value[key]) {
                   table.setCellValue(formData.value[key], recordId, laborInsuranceRanges[laborInsuranceRanges.length - 1][rangeKey]);
