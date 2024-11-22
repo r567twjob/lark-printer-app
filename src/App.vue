@@ -4,7 +4,6 @@ import Form from './components/Form.vue'
 
 <template>
   <main>
-    <h4>台灣勞工勞健保計算機</h4>
     <Form />
   </main>
 </template>
