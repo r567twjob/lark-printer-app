@@ -22,7 +22,7 @@
       </el-row>
     </div>
     <div class="table-container">
-      <grid-layout :layout="layout" :col-num="12" :row-height="25" :is-draggable="true" :is-resizable="true" :vertical-compact="true" :use-css-transforms="true" :margin="[0, 0]" :min-x="4" :max-x="12" @layout-updated="saveLayout">
+      <grid-layout :layout="layout" :col-num="12" :row-height="25" :is-draggable="true" :is-resizable="true" :vertical-compact="true" :use-css-transforms="true" :margin="[0, 0]" :min-x="2" :max-x="12" @layout-updated="saveLayout">
         <grid-item v-for="item in layout" :key="item.i" :x="item.x" :y="item.y" :w="item.w" :h="item.h" :i="item.i">
           <TableItem :item-data="item"></TableItem>
           <el-button class="item-control" type="danger" :icon="Delete" circle size="small" @click="removeWidget(item.fieldId)" :style="{display: hideDeleteControl ? 'none' : 'block'}"/>
@@ -64,7 +64,7 @@ export default {
       tableId.value = selection.tableId
       const table = await bitable.base.getTableById(selection.tableId);
       // 提供新增的欄位選項
-      fieldsData.value =  await table.getFieldMetaList();
+      fieldsData.value =  (await table.getFieldMetaList()).filter(field => field.type !== 99001 && field.type !== 18 && field.type !== 21);
 
       // 檢查是否有已儲存的排版
       const savedLayout = localStorage.getItem('printLayouts');
