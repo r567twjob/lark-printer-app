@@ -21,14 +21,18 @@
         </el-col>
       </el-row>
     </div>
-    <div class="table-container">
-      <grid-layout :layout="layout" :col-num="12" :row-height="25" :is-draggable="true" :is-resizable="true" :vertical-compact="true" :use-css-transforms="true" :margin="[0, 0]" :min-x="2" :max-x="12" @layout-updated="saveLayout">
-        <grid-item v-for="item in layout" :key="item.i" :x="item.x" :y="item.y" :w="item.w" :h="item.h" :i="item.i">
-          <TableItem :item-data="item"></TableItem>
-          <el-button class="item-control not-print" type="danger" :icon="Delete" circle size="small" @click="removeWidget(item.fieldId)" :style="{display: hideDeleteControl ? 'none' : 'block'}"/>
-        </grid-item>
-      </grid-layout>
-    </div>
+    <el-row :gutter="20">
+      <el-col :span="20">
+        <div class="table-container">
+          <grid-layout :layout="layout" :col-num="12" :row-height="25" :is-draggable="true" :is-resizable="true" :vertical-compact="true" :use-css-transforms="true" :margin="[0, 0]" :min-x="2" :max-x="12" @layout-updated="saveLayout">
+            <grid-item v-for="item in layout" :key="item.i" :x="item.x" :y="item.y" :w="item.w" :h="item.h" :i="item.i">
+              <TableItem :item-data="item"></TableItem>
+              <el-button class="item-control not-print" type="danger" :icon="Delete" circle size="small" @click="removeWidget(item.fieldId)" :style="{display: hideDeleteControl ? 'none' : 'block'}"/>
+            </grid-item>
+          </grid-layout>
+        </div>
+      </el-col>
+    </el-row>
   </div>
 </template>
 
@@ -144,6 +148,7 @@ export default {
 
 <style>
 .table-container {
+  width: 100%;
   margin-top: 20px;
   border: #000 1px solid;
 }
