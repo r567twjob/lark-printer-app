@@ -6,7 +6,7 @@
           <el-checkbox v-model="hideDeleteControl" label="隱藏刪除控制項" size="small"/>
         </el-col>
         <el-col :span="2" :offset="16">
-          <el-button  type="primary" :icon="Printer" plain>列印</el-button>
+          <el-button  type="primary" :icon="Printer" plain @click="printPage">列印</el-button>
         </el-col>
       </el-row>
       <el-row :gutter="20" style="padding-top: 20px;">
@@ -25,7 +25,7 @@
       <grid-layout :layout="layout" :col-num="12" :row-height="25" :is-draggable="true" :is-resizable="true" :vertical-compact="true" :use-css-transforms="true" :margin="[0, 0]" :min-x="2" :max-x="12" @layout-updated="saveLayout">
         <grid-item v-for="item in layout" :key="item.i" :x="item.x" :y="item.y" :w="item.w" :h="item.h" :i="item.i">
           <TableItem :item-data="item"></TableItem>
-          <el-button class="item-control" type="danger" :icon="Delete" circle size="small" @click="removeWidget(item.fieldId)" :style="{display: hideDeleteControl ? 'none' : 'block'}"/>
+          <el-button class="item-control not-print" type="danger" :icon="Delete" circle size="small" @click="removeWidget(item.fieldId)" :style="{display: hideDeleteControl ? 'none' : 'block'}"/>
         </grid-item>
       </grid-layout>
     </div>
@@ -41,7 +41,6 @@ import { ref, onMounted } from 'vue';
 import TableItem from './TableItem.vue'
 
 import 'element-plus/theme-chalk/display.css'
-import { da } from "date-fns/locale";
 
 export default {
   components: {
@@ -119,6 +118,7 @@ export default {
     };
 
     const printPage = ()=>{
+      hideDeleteControl.value = true
       window.print();
     }
    
@@ -152,6 +152,16 @@ export default {
   position: fixed;
   right: 0;
   top:0;
+}
+
+@media print {
+  .not-print {
+    display: none !important;
+  }
+
+  .table-container{
+    border: none !important;
+  }
 }
 </style>
 

@@ -50,8 +50,8 @@ export default {
             const valueData = await table.getCellValue(item.fieldId, recordId)
             label.value = fieldData.name
 
-            console.log(fieldData)
-            console.log(valueData)
+            // console.log(fieldData)
+            // console.log(valueData)
 
             if (valueData == null) {
                 cell.value = ''
@@ -64,7 +64,6 @@ export default {
                     break;
                 case 1005: // 自動編號
                 case 2: // 數字
-                case 99002:
                     cell.value = valueData
                     break;
                 case 3: // 單選
@@ -90,7 +89,8 @@ export default {
                     cell.value = valueData
                     break;
                 case 15: // 超連結
-                
+                    cell.value = valueData.map(item => item.link).join("、");
+                    break
                 case 17: // 附件
                     isHtml.value = true
                     let result = ''
@@ -112,6 +112,9 @@ export default {
                 case 23: // 群組
                     cell.value = valueData.map(item => item.text || item.name).join("、");
                     break;
+                case 99002: // 進度
+                    cell.value = `${valueData*100}%`
+                    break
                 case 99003: // 貨幣
                     cell.value = new Intl.NumberFormat("en-US", {style: "currency", currency: fieldData.property.currencyCode, minimumFractionDigits: fieldData.property.decimalDigits }).format(valueData);
                     break
@@ -169,6 +172,10 @@ export default {
 }
 
 .table-value > p {
+    padding-left: 5px;
+}
+
+.table-value > span {
     padding-left: 5px;
 }
 </style>
