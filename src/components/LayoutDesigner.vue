@@ -22,7 +22,7 @@
       </el-row>
     </div>
     <div class="table-container">
-      <grid-layout :layout="layout" :col-num="12" :row-height="25" :is-draggable="true" :is-resizable="true" :vertical-compact="true" :use-css-transforms="true" :margin="[0, 0]" :min-x="2" :max-x="12">
+      <grid-layout :layout="layout" :col-num="12" :row-height="25" :is-draggable="true" :is-resizable="true" :vertical-compact="true" :use-css-transforms="true" :margin="[0, 0]" :min-x="4" :max-x="12" @layout-updated="saveLayout">
         <grid-item v-for="item in layout" :key="item.i" :x="item.x" :y="item.y" :w="item.w" :h="item.h" :i="item.i">
           <TableItem :item-data="item"></TableItem>
           <el-button class="item-control" type="danger" :icon="Delete" circle size="small" @click="removeWidget(item.fieldId)" :style="{display: hideDeleteControl ? 'none' : 'block'}"/>
@@ -41,6 +41,7 @@ import { ref, onMounted } from 'vue';
 import TableItem from './TableItem.vue'
 
 import 'element-plus/theme-chalk/display.css'
+import { da } from "date-fns/locale";
 
 export default {
   components: {
@@ -53,18 +54,48 @@ export default {
     const hideDeleteControl = ref(false)
     const tableData = ref([])
     const fieldsData = ref([])
+    const tableId = ref('')
     const layout = ref([])
     const selectedWidgetData = ref('')
     const selectedItem = ref({})
-    const savedLayout = ref([])
-    const selectedRecord = ref({})
 
     onMounted(async () => {
       const [selection] = await Promise.all([bitable.base.getSelection()]);
-      
+      tableId.value = selection.tableId
       const table = await bitable.base.getTableById(selection.tableId);
+      // 提供新增的欄位選項
       fieldsData.value =  await table.getFieldMetaList();
+
+      // 檢查是否有已儲存的排版
+      const savedLayout = localStorage.getItem('printLayouts');
+      if (savedLayout) {
+        let layoutsData = JSON.parse(savedLayout);
+        if (layoutsData[selection.tableId].length > 0) {
+          layout.value = layoutsData[selection.tableId];
+        }
+      } 
+
     });
+
+    const saveLayout = async() => {
+
+      const savedLayout = localStorage.getItem('printLayouts');
+      const [selection] = await Promise.all([bitable.base.getSelection()]);
+      const data = [...layout.value];
+
+      let layouts = {};
+
+      if (savedLayout) {
+        layouts = JSON.parse(savedLayout);
+        layouts[selection.tableId] = data;
+      } else {
+        layouts[selection.tableId] = data;
+      }
+
+      if (data.length > 0) {
+        localStorage.setItem('printLayouts', JSON.stringify(layouts));
+      }
+    };
 
 
     const addWidget = async() => {
@@ -80,17 +111,14 @@ export default {
         };
 
         layout.value = [...layout.value, newWidget];
-      
     };
 
     const removeWidget = async(fieldId) => {
       const layoutData = layout.value
-
       layout.value = layoutData.filter((layout) => layout.fieldId != fieldId)
     };
 
     const printPage = ()=>{
-      // 在列印之前清除選擇
       window.print();
     }
    
@@ -102,7 +130,7 @@ export default {
       layout,
       selectedWidgetData, 
       selectedItem,
-      savedLayout,
+      saveLayout,
       Delete,
       Printer,
       printPage,
