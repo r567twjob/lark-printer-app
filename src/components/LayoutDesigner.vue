@@ -15,16 +15,25 @@
               <el-option v-for="item in fieldsData" :key="item.id" :label="item.name" :value="item.id"/>
             </el-select>
         </el-col>
-        <el-col :span="2" :offset="10">
-          <el-button type="info" plain size="large" @click="addWidget">新增元素</el-button>
+        <el-col :span="4">
+          <el-input v-if="selectedWidgetData == 'title'" v-model="customData" placeholder="請輸入欄位名稱" size="small"/>
+        </el-col>
+        <el-col :span="2" :offset="6">
+          <el-row>
+            <el-button class="spaced-button" type="info" plain size="large" @click="downloadPDF">下載 PDF</el-button>
+          </el-row>
+          <el-row>
+            <el-button class="spaced-button" type="info" plain size="large" @click="addWidget">新增元素</el-button>
+          </el-row>
           <el-checkbox v-model="columnChecked" label="直式" size="small"/>
+          <el-checkbox v-model="headerChecked" label="表頭" size="small"/>
         </el-col>
       </el-row>
     </div>
     <el-row :gutter="20">
       <el-col :span="20">
-        <div class="table-container">
-          <grid-layout :layout="layout" :col-num="12" :row-height="25" :is-draggable="true" :is-resizable="true" :vertical-compact="true" :use-css-transforms="true" :margin="[0, 0]" :min-x="2" :max-x="12" @layout-updated="saveLayout">
+        <div class="table-container" id="table-container">
+          <grid-layout :layout="layout" :col-num="24" :row-height="1" :is-draggable="true" :is-resizable="true" :vertical-compact="false" :use-css-transforms="true" :margin="[1, 1]" @layout-updated="saveLayout">
             <grid-item v-for="item in layout" :key="item.i" :x="item.x" :y="item.y" :w="item.w" :h="item.h" :i="item.i">
               <TableItem :item-data="item"></TableItem>
               <el-button class="item-control not-print" type="danger" :icon="Delete" circle size="small" @click="removeWidget(item.fieldId)" :style="{display: hideDeleteControl ? 'none' : 'block'}"/>
@@ -43,6 +52,7 @@ import { Delete,Printer } from '@element-plus/icons-vue'
 import { bitable } from '@base-open/web-api';
 import { ref, onMounted } from 'vue';
 import TableItem from './TableItem.vue'
+import html2pdf from "html2pdf.js";
 
 import 'element-plus/theme-chalk/display.css'
 
@@ -54,6 +64,7 @@ export default {
   },
   setup(){
     const columnChecked = ref(false)
+    const headerChecked = ref(false)
     const hideDeleteControl = ref(false)
     const tableData = ref([])
     const fieldsData = ref([])
@@ -61,13 +72,21 @@ export default {
     const layout = ref([])
     const selectedWidgetData = ref('')
     const selectedItem = ref({})
+    const customData = ref('')
 
     onMounted(async () => {
       const [selection] = await Promise.all([bitable.base.getSelection()]);
       tableId.value = selection.tableId
       const table = await bitable.base.getTableById(selection.tableId);
       // 提供新增的欄位選項
-      fieldsData.value =  (await table.getFieldMetaList()).filter(field => field.type !== 99001 && field.type !== 18 && field.type !== 21);
+      const fieldsMeta = (await table.getFieldMetaList()).filter(field => field.type !== 99001 && field.type !== 18 && field.type !== 21);
+      console.log(fieldsMeta)
+
+      fieldsMeta.push({
+          id: "title",
+          name: "新增客製標題"
+      })
+      fieldsData.value =  fieldsMeta;
 
       // 檢查是否有已儲存的排版
       const savedLayout = localStorage.getItem('printLayouts');
@@ -102,16 +121,27 @@ export default {
 
 
     const addWidget = async() => {
-        // console.log(selectedWidgetData)
-        const newWidget = {
+        let newWidget = {
           x: 0,
           y: layout.value.length + 12,
           w: 2,
           h: 2,
           i: String(layout.value.length),
           fieldId: selectedWidgetData.value,
-          columnChecked: columnChecked.value
+          columnChecked: columnChecked.value,
+          headerChecked: headerChecked.value,
+          customData: customData.value
         };
+
+        if (selectedWidgetData.value == 'title') {
+          if (customData.value == '') {
+            alert('請輸入欄位名稱')
+            return
+          }
+
+          newWidget.headerChecked = true
+        }
+
 
         layout.value = [...layout.value, newWidget];
     };
@@ -124,6 +154,21 @@ export default {
     const printPage = ()=>{
       hideDeleteControl.value = true
       window.print();
+    }
+
+    const downloadPDF = ()=>{
+      hideDeleteControl.value = true
+      const element = document.getElementsByClassName('vue-grid-layout')[0];
+      
+      const options = {
+        margin: 10,
+        filename: "example.pdf",
+        image: { type: "jpeg", quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true},
+        jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+      };
+
+      html2pdf().set(options).from(element).save();
     }
    
     return {
@@ -138,8 +183,11 @@ export default {
       Delete,
       Printer,
       printPage,
+      downloadPDF,
       columnChecked,
-      hideDeleteControl
+      headerChecked,
+      hideDeleteControl,
+      customData
     }
   }
 
@@ -167,6 +215,10 @@ export default {
   .table-container{
     border: none !important;
   }
+}
+
+.spaced-button {
+  margin-bottom: 5px; /* 調整按鈕之間的間距 */
 }
 </style>
 
