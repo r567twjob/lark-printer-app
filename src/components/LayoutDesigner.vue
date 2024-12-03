@@ -32,18 +32,20 @@
         </el-col>
       </el-row>
     </div>
-    <el-row :gutter="24">
-      <el-col :span="24">
-        <div class="table-container" id="table-container">
-          <grid-layout :layout="layout" :col-num="24" :row-height="1" :is-draggable="true" :is-resizable="true" :vertical-compact="false" :use-css-transforms="true" :margin="[1, 1]" :prevent-collision="true" :min-w="2" :max-w="12" @layout-updated="saveLayout">
-            <grid-item v-for="item in layout" :key="item.i" :x="item.x" :y="item.y" :w="item.w" :h="item.h" :i="item.i" @dbclick="removeWidget(item.fieldId)">
-              <TableItem :item-data="item"></TableItem>
-              <el-button class="item-control not-print" type="danger" :icon="Delete" circle size="small" @click="removeWidget(item.fieldId)" :style="{display: hideDeleteControl ? 'none' : 'block'}"/>
-            </grid-item>
-          </grid-layout>
-        </div>
-      </el-col>
-    </el-row>
+    <div id="pdf-container">
+      <el-row :gutter="24">
+        <el-col :span="24">
+          <div class="table-container" id="table-container">
+            <grid-layout :layout="layout" :col-num="24" :row-height="1" :is-draggable="true" :is-resizable="true" :vertical-compact="false" :use-css-transforms="true" :margin="[1, 1]" :prevent-collision="true" :min-w="2" :max-w="12" @layout-updated="saveLayout">
+              <grid-item v-for="item in layout" :key="item.i" :x="item.x" :y="item.y" :w="item.w" :h="item.h" :i="item.i" @dbclick="removeWidget(item.fieldId)">
+                <TableItem :item-data="item"></TableItem>
+                <el-button class="item-control not-print" type="danger" :icon="Delete" circle size="small" @click="removeWidget(item.fieldId)" :style="{display: hideDeleteControl ? 'none' : 'block'}"/>
+              </grid-item>
+            </grid-layout>
+          </div>
+        </el-col>
+      </el-row>
+    </div>
   </div>
 </template>
 
@@ -75,6 +77,7 @@ export default {
     const selectedWidgetData = ref('')
     const selectedItem = ref({})
     const customData = ref('')
+    const currentIndex = ref(0)
 
     onMounted(async () => {
       const [selection] = await Promise.all([bitable.base.getSelection()]);
@@ -82,7 +85,7 @@ export default {
       const table = await bitable.base.getTableById(selection.tableId);
       // 提供新增的欄位選項
       const fieldsMeta = (await table.getFieldMetaList()).filter(field => field.type !== 99001 && field.type !== 18 && field.type !== 21);
-      console.log(fieldsMeta)
+      // console.log(fieldsMeta)
 
       fieldsMeta.push({
           id: "title",
@@ -97,11 +100,14 @@ export default {
         if (layoutsData[selection.tableId].length > 0) {
           layout.value = layoutsData[selection.tableId];
         }
-      } 
+      }
+      
+      currentIndex.value = layout.value.length
 
     });
 
     const saveLayout = async(newLayout) => {
+      console.log(newLayout)
       layout.value = newLayout;
       const savedLayout = localStorage.getItem('printLayouts');
       const [selection] = await Promise.all([bitable.base.getSelection()]);
@@ -124,16 +130,18 @@ export default {
 
     const addWidget = async() => {
         let newWidget = {
+          i: currentIndex.value,
           x: 0,
-          y: layout.value.length + 12,
-          w: 2,
-          h: 2,
-          i: String(layout.value.length),
+          y: currentIndex.value + 1,
+          w: 10,
+          h: 20,
           fieldId: selectedWidgetData.value,
           columnChecked: columnChecked.value,
           headerChecked: headerChecked.value,
           customData: customData.value
         };
+
+        currentIndex.value = currentIndex.value + 1
 
         if (selectedWidgetData.value == 'title') {
           if (customData.value == '') {
@@ -160,13 +168,13 @@ export default {
 
     const downloadPDF = ()=>{
       hideDeleteControl.value = true
-      const element = document.getElementsByClassName('vue-grid-layout')[0];
+      const element = document.getElementById("pdf-container");
       
       const options = {
         margin: 10,
         filename: "example.pdf",
         image: { type: "jpeg", quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true},
+        html2canvas: { scale: 1, useCORS: true},
         jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
       };
 
@@ -221,6 +229,12 @@ export default {
 
 .spaced-button {
   margin-bottom: 5px; /* 調整按鈕之間的間距 */
+}
+
+#pdf-container {
+  width: 95%; /* 降低寬度，避免貼邊 */
+  margin: 20px auto; /* 增加上下左右的空白 */
+  padding: 10px;
 }
 </style>
 
