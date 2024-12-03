@@ -1,19 +1,18 @@
 <template>
   <div class="layout-designer">
     <div class="controls not-print">
-      <el-page-header>
-      <template #content>
-        <div class="flex items-center">
-          <span class="text-large font-600 mr-3"> 列印 </span>
-        </div>
-      </template>
-      <template #extra>
-        <div class="flex items-center">
-          <el-button  type="primary" :icon="Printer" plain @click="printPage">列印</el-button>
-          <el-button  type="info" plain @click="downloadPDF">下載 PDF</el-button>
-        </div>
-      </template>
-    </el-page-header>
+      <el-row :gutter="24" style="padding-top: 20px;">
+            <el-col :span="8">
+                <span class="text-large font-600 mr-3"> 列印 </span>
+            </el-col>
+            <el-col :span="6" :offset="4">
+                <el-button  type="primary" :icon="Printer" plain @click="printPage">列印</el-button>
+            </el-col>
+            <el-col :span="6">
+                <el-button  type="info" plain @click="downloadPDF">下載 PDF</el-button>
+            </el-col>
+
+      </el-row>
       <el-row :gutter="24" style="padding-top: 20px;">
         <el-col :span="8">
             <el-select v-model="selectedWidgetData" placeholder="請選擇要加入的元素">
