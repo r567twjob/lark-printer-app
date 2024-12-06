@@ -32,11 +32,11 @@
         </el-col>
       </el-row>
     </div>
-    <div id="pdf-container">
+    <div >
       <el-row :gutter="24">
         <el-col :span="24">
-          <div class="table-container" id="table-container">
-            <grid-layout :layout="layout" :col-num="24" :row-height="1" :is-draggable="true" :is-resizable="true" :vertical-compact="false" :use-css-transforms="true" :margin="[1, 1]" :prevent-collision="true" :min-w="2" :max-w="12" @layout-updated="saveLayout">
+          <div class="table-container" id="pdf-container">
+            <grid-layout   :layout="layout" :col-num="24" :row-height="1" :is-draggable="true" :is-resizable="true" :vertical-compact="false" :use-css-transforms="true" :margin="[1, 1]" :prevent-collision="true" :min-w="2" :max-w="12" @layout-updated="saveLayout">
               <grid-item v-for="item in layout" :key="item.i" :x="item.x" :y="item.y" :w="item.w" :h="item.h" :i="item.i" @dbclick="removeWidget(item.fieldId)">
                 <TableItem :item-data="item"></TableItem>
                 <el-button class="item-control not-print" type="danger" :icon="Delete" circle size="small" @click="removeWidget(item.fieldId)" :style="{display: hideDeleteControl ? 'none' : 'block'}"/>
@@ -169,11 +169,13 @@ export default {
     const downloadPDF = ()=>{
       hideDeleteControl.value = true
       const element = document.getElementById("pdf-container");
+
+      let filename = prompt("請輸入檔案名稱", "example");
       
       const options = {
-        margin: 10,
-        filename: "example.pdf",
-        image: { type: "jpeg", quality: 0.98 },
+        margin: 5,
+        filename: `${filename}.pdf`,
+        image: { type: "jpeg", quality: 1 },
         html2canvas: { scale: 1, useCORS: true},
         jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
       };
@@ -206,15 +208,13 @@ export default {
 
 <style>
 .table-container {
-  width: 100%;
   margin-top: 20px;
-  border: #000 1px solid;
+  /* border: #000 1px solid; */
 }
 
-.item-control {
-  position: fixed;
-  right: 0;
-  top:0;
+#pdf-container {
+  width: 100%;
+  padding-bottom: 10px;
 }
 
 @media print {
@@ -231,10 +231,6 @@ export default {
   margin-bottom: 5px; /* 調整按鈕之間的間距 */
 }
 
-#pdf-container {
-  width: 95%; /* 降低寬度，避免貼邊 */
-  margin: 20px auto; /* 增加上下左右的空白 */
-  padding: 10px;
-}
+
 </style>
 
