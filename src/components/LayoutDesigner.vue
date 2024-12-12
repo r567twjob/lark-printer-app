@@ -20,7 +20,7 @@
             </el-select>
         </el-col>
         <el-col :span="4">
-          <el-input v-if="selectedWidgetData == 'title'" v-model="customData" placeholder="請輸入欄位名稱" size="small"/>
+          <el-input v-if="selectedWidgetData == 'title' || selectedWidgetData == 'image'" v-model="customData" placeholder="請輸入欄位名稱" size="small"/>
         </el-col>
         <el-col :span="2" :offset="6">
           <el-row>
@@ -91,6 +91,10 @@ export default {
           id: "title",
           name: "新增客製標題"
       })
+      fieldsMeta.push({
+          id: "image",
+          name: "新增客製圖片"
+      })
       fieldsData.value =  fieldsMeta;
 
       // 檢查是否有已儲存的排版
@@ -143,7 +147,7 @@ export default {
 
         currentIndex.value = currentIndex.value + 1
 
-        if (selectedWidgetData.value == 'title') {
+        if (selectedWidgetData.value == 'title' || selectedWidgetData.value == 'image') {
           if (customData.value == '') {
             alert('請輸入欄位名稱')
             return

@@ -5,6 +5,9 @@
                 <template v-if="item.fieldId == 'title'">
                     {{ label }}
                 </template>
+                <template v-if="item.fieldId == 'image'">
+                    <div v-html="label"></div>
+                </template>
                 <template v-else>
                     <template v-if="!isHtml">
                         <span>{{ cell }}</span>
@@ -67,6 +70,8 @@ export default {
 
             if (item.fieldId == 'title') {
                 label.value = item.customData
+            } else if (item.fieldId == 'image') {
+                label.value = `<img style='width: 100%; height: 100%;' src='${item.customData}'/>` 
             } else {
                 const fieldData = await table.getFieldMetaById(item.fieldId)
                 const valueData = await table.getCellValue(item.fieldId, recordId)
