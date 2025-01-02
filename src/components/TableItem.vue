@@ -129,8 +129,14 @@ export default {
                         }
                         cell.value = result
                         break;
+                    case 18: // 單向連結
+                        cell.value = valueData.text
+                        break;
                     case 19: // 查找引用
                         cell.value = valueData.map(item => item).join("、");
+                        break;
+                    case 21: // 雙向連結
+                        cell.value = valueData.text
                         break;
                     case 22: // 地理位置
                         cell.value = valueData.address;

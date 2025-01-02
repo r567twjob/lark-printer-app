@@ -84,7 +84,9 @@ export default {
       tableId.value = selection.tableId
       const table = await bitable.base.getTableById(selection.tableId);
       // 提供新增的欄位選項
-      const fieldsMeta = (await table.getFieldMetaList()).filter(field => field.type !== 99001 && field.type !== 18 && field.type !== 21);
+      const fieldsMeta = (await table.getFieldMetaList()).filter(
+        field => field.type !== 99001
+      );
       // console.log(fieldsMeta)
 
       fieldsMeta.push({
