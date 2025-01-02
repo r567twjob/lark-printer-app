@@ -33,7 +33,7 @@
 </template>
 
 <script>
-import { bitable } from '@base-open/web-api';
+import { bitable, FieldType } from '@base-open/web-api';
 import { ref, onMounted } from 'vue';
 import { format as formatDate } from 'date-fns';
 
@@ -150,6 +150,26 @@ export default {
                     case 99003: // 貨幣
                         cell.value = new Intl.NumberFormat("en-US", {style: "currency", currency: fieldData.property.currencyCode, minimumFractionDigits: fieldData.property.decimalDigits }).format(valueData);
                         break
+                    case FieldType.Barcode: // 條碼
+                        isHtml.value = true
+
+                        // console.log(valueData)
+                        
+                        let text = ''
+                        if (valueData.length == 0) {
+                            cell.value = ''
+                        } else {
+                            for (let index = 0; index < valueData.length; index++) {
+                                const element = valueData[index];
+                                // console.log(element)
+                                if (element.type == 'text') {
+                                    text += element.text
+                                }
+                            }
+                        }
+
+                        cell.value = `<img src='https://barcodeapi.org/api/auto/${text}'/>`
+                        break
                     case 99004: // 評分
                         let rating = `${valueData} / ${fieldData.property.min}~${fieldData.property.max}`
                         cell.value = rating
@@ -208,6 +228,22 @@ export default {
 
 .table-value > p {
     padding-left: 5px;
+}
+
+.table-value > div {
+    height: 100%;
+    width: 100%;
+    padding: 10px 0; /* 上下留白 20px */
+    box-sizing: border-box;
+    display: flex;
+    justify-content: center; /* 水平置中 */
+    align-items: center; /* 垂直置中 */
+}
+
+.table-value > div > img {
+    max-width: 100%; /* 圖片最大寬度不超過父元素 */
+    max-height: 100%; /* 圖片最大高度不超過父元素 */
+    object-fit: contain; /* 保持圖片比例 */
 }
 
 .table-value > span {
