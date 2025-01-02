@@ -85,39 +85,39 @@ export default {
                 }
     
                 switch (fieldData.type) {
-                    case 1: // 多行文本
+                    case FieldType.Text: // 多行文本
                         cell.value = valueData.map(item => item.text || item.name).join("、");
                         break;
-                    case 1005: // 自動編號
-                    case 2: // 數字
+                    case FieldType.AutoNumber: // 自動編號
+                    case FieldType.Number: // 數字
                         cell.value = valueData
                         break;
-                    case 3: // 單選
+                    case FieldType.SingleSelect: // 單選
                         cell.value = valueData.text
                         break;
-                    case 4: // 多選
+                    case FieldType.MultiSelect: // 多選
                         cell.value = valueData.map(item => item.text || item.name).join("、");
                         break;
-                    case 1001: // 創建時間
-                    case 1002: // 最後更新時間
-                    case 5: // 日期
+                    case FieldType.CreatedTime: // 創建時間
+                    case FieldType.ModifiedTime: // 最後更新時間
+                    case FieldType.DateTime: // 日期
                         cell.value = formatDate(new Date(valueData), fieldData.property.dateFormat)
                         break;
-                    case 7: // 複選框
+                    case FieldType.Checkbox: // 複選框
                         cell.value = valueData[0] ? "✔" : "X";
                         break;
-                    case 1003: // 創建人
-                    case 1004: // 修改人
-                    case 11: // 人員
+                    case FieldType.CreatedUser: // 創建人
+                    case FieldType.ModifiedUser: // 修改人
+                    case FieldType.User: // 人員
                         cell.value = valueData.map(item => item.name).join("、");
                         break;
-                    case 13: // 電話號碼
+                    case FieldType.Phone: // 電話號碼
                         cell.value = valueData
                         break;
-                    case 15: // 超連結
+                    case FieldType.Url: // 超連結
                         cell.value = valueData.map(item => item.link).join("、");
                         break
-                    case 17: // 附件
+                    case FieldType.Attachment: // 附件
                         isHtml.value = true
                         let result = ''
                         for (let i = 0; i < valueData.length; i++) {
@@ -129,25 +129,25 @@ export default {
                         }
                         cell.value = result
                         break;
-                    case 18: // 單向連結
+                    case FieldType.SingleLink: // 單向連結
                         cell.value = valueData.text
                         break;
-                    case 19: // 查找引用
+                    case FieldType.Lookup: // 查找引用
                         cell.value = valueData.map(item => item).join("、");
                         break;
-                    case 21: // 雙向連結
+                    case FieldType.DuplexLink: // 雙向連結
                         cell.value = valueData.text
                         break;
-                    case 22: // 地理位置
+                    case FieldType.Location: // 地理位置
                         cell.value = valueData.address;
                         break;
-                    case 23: // 群組
+                    case FieldType.GroupChat: // 群組
                         cell.value = valueData.map(item => item.text || item.name).join("、");
                         break;
-                    case 99002: // 進度
+                    case FieldType.Progress: // 進度
                         cell.value = `${valueData*100}%`
                         break
-                    case 99003: // 貨幣
+                    case FieldType.Currency: // 貨幣
                         cell.value = new Intl.NumberFormat("en-US", {style: "currency", currency: fieldData.property.currencyCode, minimumFractionDigits: fieldData.property.decimalDigits }).format(valueData);
                         break
                     case FieldType.Barcode: // 條碼
@@ -170,7 +170,7 @@ export default {
 
                         cell.value = `<img src='https://barcodeapi.org/api/auto/${text}'/>`
                         break
-                    case 99004: // 評分
+                    case FieldType.Rating: // 評分
                         let rating = `${valueData} / ${fieldData.property.min}~${fieldData.property.max}`
                         cell.value = rating
                         break
