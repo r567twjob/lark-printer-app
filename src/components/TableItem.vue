@@ -33,7 +33,7 @@
 </template>
 
 <script>
-import { bitable, FieldType } from '@base-open/web-api';
+import { bitable, FieldType } from '@lark-base-open/js-sdk';
 import { ref, onMounted } from 'vue';
 import { format as formatDate } from 'date-fns';
 
@@ -130,6 +130,20 @@ export default {
                         cell.value = result
                         break;
                     case FieldType.SingleLink: // 單向連結
+                        console.log(valueData)
+                        isHtml.value = true
+                        const singleLinkTable = await bitable.base.getTable(valueData.tableId)
+                        // const singleLinkRecordList = await singleLinkTable.getRecordIdList()
+                        for (let i = 0; i < valueData.recordIds.length; i++) {
+                            console.log(valueData.recordIds[i])
+                            let singleLinkRecord = await singleLinkTable.getRecordById(valueData.recordIds[i])
+                            
+                            console.log(singleLinkRecord)
+                        }
+
+                        // const singleLinkRecord = await singleLinkTable.getRecordById(valueData.recordId)
+                        // const singleLinkRecord = await 
+                        // console.log(singleLinkTable)
                         cell.value = valueData.text
                         break;
                     case FieldType.Lookup: // 查找引用
@@ -153,15 +167,12 @@ export default {
                     case FieldType.Barcode: // 條碼
                         isHtml.value = true
 
-                        // console.log(valueData)
-                        
                         let text = ''
                         if (valueData.length == 0) {
                             cell.value = ''
                         } else {
                             for (let index = 0; index < valueData.length; index++) {
                                 const element = valueData[index];
-                                // console.log(element)
                                 if (element.type == 'text') {
                                     text += element.text
                                 }

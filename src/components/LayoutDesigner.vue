@@ -53,7 +53,7 @@
 import { GridLayout, GridItem } from "vue-grid-layout-v3"
 import { ElHeader,ElSelect,ElButton,ElCheckbox } from 'element-plus'
 import { Delete,Printer } from '@element-plus/icons-vue'
-import { bitable } from '@base-open/web-api';
+import { bitable } from '@lark-base-open/js-sdk';
 import { ref, onMounted } from 'vue';
 import TableItem from './TableItem.vue'
 import html2pdf from "html2pdf.js";
@@ -85,10 +85,6 @@ export default {
       const table = await bitable.base.getTableById(selection.tableId);
       // 提供新增的欄位選項
       const fieldsMeta = (await table.getFieldMetaList())
-      // .filter(
-      //   field => field.type !== 99001
-      // );
-      // console.log(fieldsMeta)
 
       fieldsMeta.push({
           id: "title",
@@ -114,7 +110,6 @@ export default {
     });
 
     const saveLayout = async(newLayout) => {
-      console.log(newLayout)
       layout.value = newLayout;
       const savedLayout = localStorage.getItem('printLayouts');
       const [selection] = await Promise.all([bitable.base.getSelection()]);
